@@ -1,9 +1,10 @@
-import { Controller, Get, Req, Param, Post, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Req, Param, Post, Put, Delete, Query } from '@nestjs/common';
 import type { Request } from 'express';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-    @Get()
+    @Get('all')
     findAll(@Req() request: Request): string {
         return 'This action returns all users';
     }
@@ -11,6 +12,11 @@ export class UserController {
     @Get(':name')
     findOne(@Param('name') name: string): string {
         return `This action returns ${name} user`;
+    }
+
+    @Get()
+    find(@Query('age') age: number, @Query('breed') breed: string) {
+        return `This action returns all user filtered by age: ${age} and breed: ${breed}`;
     }
 
     @Post()
