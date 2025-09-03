@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { User } from './user.interface';
 
 @Injectable()
 export class UserService {
-    private readonly users = [];
+    private readonly users:User[] = [];
 
-    findAll(): string[] {
+    create(user: User){
+        this.users.push(user)
+        return "user berhasil ditambahkan"
+    }
+    
+    findAll(): User[] {
         return this.users;
     }
 }

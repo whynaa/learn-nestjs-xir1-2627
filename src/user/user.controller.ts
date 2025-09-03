@@ -1,12 +1,15 @@
-import { Controller, Get, Req, Param, Post, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Req, Param, Post, Put, Delete, Query, Body } from '@nestjs/common';
 import type { Request } from 'express';
 import { UserService } from './user.service';
+import * as userInterface from './user.interface';
 
 @Controller('user')
 export class UserController {
-    @Get('all')
-    findAll(@Req() request: Request): string {
-        return 'This action returns all users';
+    constructor(private userService: UserService){}
+
+    @Get()
+    async findAll(): Promise<userInterface.User[]> {
+        return this.userService.findAll();
     }
 
     @Get(':name')
@@ -14,14 +17,14 @@ export class UserController {
         return `This action returns ${name} user`;
     }
 
-    @Get()
+    @Get('filter')
     find(@Query('age') age: number, @Query('breed') breed: string) {
         return `This action returns all user filtered by age: ${age} and breed: ${breed}`;
     }
 
     @Post()
-    create(): string {
-        return 'This action adds a new user';
+    create(@Body() user: userInterface.User) {
+        return this.userService.create(user);
     }
 
     @Put(':id')
