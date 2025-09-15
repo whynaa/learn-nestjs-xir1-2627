@@ -28,12 +28,12 @@ export class UserController {
     }
 
     @Put(':id')
-    update(@Param('id') id: string): string {
-        return `This action update user id ${id}`;
+    update(@Param('id') id: number, @Body() user: userInterface.User) {
+        return this.userService.update(id, user);
     }
 
     @Delete(':id')
-    delete(@Param('id') id: string): string {
-        return `This action delete user id ${id}`;
+    delete(@Param('id') id: number) {
+        return this.userService.delete(id);
     }
 }
