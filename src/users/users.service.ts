@@ -7,8 +7,28 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const { name, email, password } = createUserDto;
+      const createUser = await this.prisma.user.create({
+        data: {
+          name,
+          email,
+          password
+        }
+      })
+      return {
+        success: true,
+        message: "user create successfully",
+        data: createUser
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `Something went wrong: ${error.message}`,
+        data: null
+      }
+    }
   }
 
   async findAll() {
