@@ -48,15 +48,98 @@ export class UsersService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    try {
+      const findUser = await this.prisma.user.findFirst({ where: { id: id } })
+      if (!findUser) {
+        return {
+          success: false,
+          message: `User does not exists`,
+          data: null
+        }
+      }
+      return {
+        success: true,
+        message: `User has retrieved`,
+        data: findUser
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `error when get one user: ${error.message}`,
+        data: null
+      }
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const { name, email, password } = updateUserDto
+      const findUser = await this.prisma.user.findFirst({ where: { id: id } })
+      if (!findUser) {
+        return {
+          success: false,
+          message: `User does not exists`,
+          data: null
+        }
+      }
+
+      const updateUser = await this.prisma.user.update({
+        where: { id: id },
+        data: {
+          name: name ?? findUser.name,
+          email: email ?? findUser.email,
+          password: password ?? findUser.password,
+          // password: password ? await this.bcrypt.hashPassword(password) : findUser.password
+        }
+      })
+
+      return {
+        success: true,
+        message: `New User has updated`,
+        data: updateUser
+      }
+
+    } catch (error) {
+      return {
+        success: false,
+        message: `error when update user: ${error.message}`,
+        data: null
+      }
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    try {
+      const findUser = await this.prisma.user.findFirst({
+        where: {
+          id: id
+        }
+      })
+      if (!findUser) {
+        return {
+          success: false,
+          message: `User does not exists`,
+          data: null
+        }
+      }
+
+      const deletedUser = await this.prisma.user.delete({
+        where: {
+          id: id
+        }
+      })
+      return {
+        success: true,
+        message: `User has deleted`,
+        data: deletedUser
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: `error when delete user: ${error.message}`,
+        data: null
+      }
+    }
   }
 }
