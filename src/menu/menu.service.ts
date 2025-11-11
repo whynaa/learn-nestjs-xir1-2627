@@ -56,13 +56,13 @@ export class MenuService {
       if (!findMenu) {
         return {
           success: false,
-          message: `User does not exists`,
+          message: `Menu does not exists`,
           data: null
         }
       }
       return {
         success: true,
-        message: `User has retrieved`,
+        message: `Menu has retrieved`,
         data: findMenu
       }
     } catch (error) {
