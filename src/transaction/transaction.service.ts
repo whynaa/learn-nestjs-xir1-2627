@@ -57,4 +57,48 @@ export class TransactionService {
             }
         }
     }
+
+    async findAll() {
+        try {
+            return this.prisma.transaction.findMany({
+                include: {
+                    detail: {
+                        include: {
+                            Menu: true
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            });
+        } catch (error) {
+            return {
+                success: false,
+                message: `Something went wrong: ${error.message}`,
+                data: null
+            }
+        }
+    }
+
+    async findOne(id: number) {
+        try {
+            return this.prisma.transaction.findUnique({
+                where: { id },
+                include: {
+                    detail: {
+                        include: {
+                            Menu: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            return {
+                success: false,
+                message: `Something went wrong: ${error.message}`,
+                data: null
+            }
+        }
+    }
 }
