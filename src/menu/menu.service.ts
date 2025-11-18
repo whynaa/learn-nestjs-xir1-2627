@@ -1,22 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UploadedFile } from '@nestjs/common';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class MenuService {
   constructor(
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private cloudinaryService: CloudinaryService
   ) { }
-  async create(createMenuDto: CreateMenuDto) {
+  async create(createMenuDto: CreateMenuDto, fileImage: Express.Multer.File) {
     try {
       const { name, price, category, description } = createMenuDto;
+      if(!fileImage){
+        return {
+          success: false,
+          message: "Image file is required",
+          data: null
+        }
+      }
+      const uploadFile = await this.cloudinaryService.uploadFile(fileImage, 'menu_images');
       const createMenu = await this.prisma.menu.create({
         data: {
           name,
           price: Number(price),
           category,
-          description
+          description,
+          fileImage: uploadFile?.secure_url || ''
         }
       })
       return {
@@ -74,7 +85,7 @@ export class MenuService {
     }
   }
 
-  async update(id: number, updateMenuDto: UpdateMenuDto) {
+  async update(id: number, updateMenuDto: UpdateMenuDto, fileImage: Express.Multer.File) {
     try {
       const { name, price, category, description } = updateMenuDto
       const findMenu = await this.prisma.menu.findFirst({ where: { id: id } })
@@ -85,14 +96,24 @@ export class MenuService {
           data: null
         }
       }
+      let urlImage = findMenu.fileImage;
+
+      if(fileImage){
+        // delete old image
+        await this.cloudinaryService.deleteFile(findMenu.fileImage);
+        // upload new image
+        const uploadFile =  await this.cloudinaryService.uploadFile(fileImage, 'menu_images');
+        urlImage = uploadFile?.secure_url;
+      }
 
       const updateMenu = await this.prisma.menu.update({
         where: { id: id },
         data: {
           name: name ?? findMenu.name,
-          price: Number(price) ?? findMenu.price,
+          price: Number(price) || findMenu.price,
           category: category ?? findMenu.category,
-          description: description ?? findMenu.description
+          description: description ?? findMenu.description,
+          fileImage: urlImage
         }
       })
 
@@ -113,11 +134,7 @@ export class MenuService {
 
   async remove(id: number) {
     try {
-      const findMenu = await this.prisma.menu.findFirst({
-        where: {
-          id: id
-        }
-      })
+      const findMenu = await this.prisma.menu.findFirst({ where: { id: id } })
       if (!findMenu) {
         return {
           success: false,
@@ -126,11 +143,7 @@ export class MenuService {
         }
       }
 
-      const deletedMenu = await this.prisma.menu.delete({
-        where: {
-          id: id
-        }
-      })
+      const deletedMenu = await this.prisma.menu.delete({ where: { id: id } })
       return {
         success: true,
         message: `Menu has deleted`,

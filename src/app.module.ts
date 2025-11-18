@@ -8,10 +8,12 @@ import { BcryptModule } from './bcrypt/bcrypt.module';
 import { AuthModule } from './auth/auth.module';
 import { MenuModule } from './menu/menu.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
-  imports: [ UsersModule, PrismaModule, BcryptModule, AuthModule, MenuModule, TransactionModule],
+  imports: [ UsersModule, PrismaModule, BcryptModule, AuthModule, MenuModule, TransactionModule, CloudinaryModule],
   controllers: [AppController],
-  providers: [AppService, BcryptService],
+  providers: [AppService, BcryptService, CloudinaryService],
 })
 export class AppModule {}
